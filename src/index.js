@@ -4,13 +4,13 @@ const morgan = require('morgan')
 
 
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 const randomDigit = () => {
-    return Math.floor(Math.random()*10).toString()
+    return Math.floor(Math.random() * 10).toString()
 }
 
-let currentPin = randomDigit() + randomDigit()  + randomDigit() + randomDigit()
+let currentPin = randomDigit() + randomDigit() + randomDigit() + randomDigit()
 console.log('Starting PIN Server on port:' + port);
 console.log('The secret pin for login is:' + currentPin);
 
@@ -22,7 +22,7 @@ app.use(morgan('tiny'));
 const tokens = {}
 const generateAPIToken = () => {
     return new Promise((resolve, reject) => {
-        crypto.randomBytes(48, function(err, buffer) {
+        crypto.randomBytes(48, function (err, buffer) {
             if (err) {
                 reject(err)
             }
@@ -50,8 +50,8 @@ const sendErrorIfAuthHeaderInvalid = (req, res) => {
         console.log('Token is missing in authorization header!');
         res.status(401)
         res.send({
-           error: 'TOKEN_MISSING',
-           message: 'You must provide the token in the Authorization header.'
+            error: 'TOKEN_MISSING',
+            message: 'You must provide the token in the Authorization header.'
         })
         return true
     }
@@ -100,7 +100,7 @@ app.post('/login', async (req, res) => {
         return
     }
 
-    if (pin === currentPin)  {
+    if (pin === currentPin) {
         // Login is successful
         try {
             console.log(`Pin ${pin} matched! Generating token`);
@@ -130,7 +130,7 @@ app.post('/logout', (req, res) => {
     if (!sendErrorIfAuthHeaderInvalid(req, res)) {
         const token = getTokenFromHeader(req);
         logout(token)
-        res.send({'message': 'You have been logged out, the token is no longer valid.'})
+        res.send({ 'message': 'You have been logged out, the token is no longer valid.' })
     }
 });
 
@@ -150,11 +150,11 @@ app.post('/changePin', (req, res) => {
                 message: 'You must provide a pin that is different from the current pin.'
             })
         }
-       console.log(`Change pin request from old pin ${currentPin} to new pin ${pin}.`)
-       currentPin = pin;
-       res.send({
-           message: 'Pin changed successfully!',
-       })
+        console.log(`Change pin request from old pin ${currentPin} to new pin ${pin}.`)
+        currentPin = pin;
+        res.send({
+            message: 'Pin changed successfully!',
+        })
     }
 });
 
